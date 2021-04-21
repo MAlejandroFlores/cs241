@@ -21,15 +21,17 @@ while try_again != 'no':
         guess_tries += 1
         guess_number = int(input("\nPlease enter a guess: "))
         if guess_number == num:
-            # Number guessed 
+            # Number guessed, exit the loop
             print("Congratulations. You guessed it!")
             print("It took you " + str(guess_tries) + " guesses.\n")
             break
         else:
+            # Check if the guess number is lower or higher
             if guess_number > num:
                 print("Lower")
             else:
                 print("Higher")
+    # Finished the game, ask if want to try again.
     try_again = input("Would you like to play again (yes/no)? ")
 
 print ("Thank you. Goodbye.")
