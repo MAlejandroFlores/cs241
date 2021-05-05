@@ -1,6 +1,6 @@
 """
 File: check03b.py
-
+Alejandro Flores Medina
 Purpose: Practice classes with Complex numbers.
 """
 
@@ -11,8 +11,10 @@ class Complex:
         self.imaginary = 0
     
     def prompt(self):
-
+        self.real = input('Please enter the real part: ')
+        self.imaginary = input('Please enter the imaginary part: ')
     def display(self):
+        print(str(self.real) + ' + ' + str(self.imaginary) + 'i')
 
 
 
