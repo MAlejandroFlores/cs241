@@ -21,7 +21,7 @@ class Robot:
         self.y_coodinate += y
 
     def rest_fuel(self, fuel):
-        if self.get_fuel >= fuel:
+        if self.get_fuel() >= fuel:
             self.fuel -= fuel
             return True
         else:
@@ -55,16 +55,19 @@ class Robot:
 
     def move_down(self):
         if self.rest_fuel(5):
-            self.set_x(1)
+            self.set_y(1)
         
 
     def status(self):
-        print('(' + self.get_x() + ', ' + self.get_y + ') - Fuel: ' + self.get_fuel())
+        print('(' + str(self.get_x()) + ', ' + str(self.get_y()) + ') - Fuel: ' + str(self.get_fuel()))
 
 
     def fire(self):
-        if self.rest_fuel(5):
+        if self.rest_fuel(15):
             print('Pew! Pew!')
+
+def status(robot):
+    robot.status()
 
        
 def prompt_command():
@@ -74,19 +77,20 @@ def prompt_command():
 def exec_command(command, robot):
     command = command.lower()
     if command == 'quit':
+        print('Goodbye.')
         sys.exit()
-    else:
-        option = {
-            'left': 'move_left',
-            'right': 'move_right',
-            'up': 'move_up',
-            'down': 'model',
-            'fire': 'fire',
-            'status': 'status'
-        }
-    robot.option[command]()
-
-
+    elif command == 'left':
+        robot.move_left()
+    elif command == 'right':
+        robot.move_right()
+    elif command == 'down':
+        robot.move_down()
+    elif command == 'up':
+        robot.move_up()
+    elif command == 'status':
+        robot.status()
+    elif command == 'fire':
+        robot.fire()
 
 
 def main():
