@@ -1,13 +1,14 @@
 """
 File: pong.py
 Original Author: Br. Burton
-Designed to be completed by others
+Designed to be completed by Alejandro Flores Medina
 
 This program implements a simplistic version of the
 classic Pong arcade game.
 """
 import arcade
 import random
+from random import randint, uniform
 
 # These are Global constants to use throughout the game
 SCREEN_WIDTH = 400
@@ -21,54 +22,94 @@ MOVE_AMOUNT = 5
 SCORE_HIT = 1
 SCORE_MISS = 5
 
-
+'''
+   Point class: define a (x, y) point in the screen
+'''
 class Point():
     def __init__(self):
-        self.x = 0
-        self.y = 0
+        self.x = randint(BALL_RADIUS//2, (SCREEN_WIDTH / 2) ) # Set ball position at the left screen edge
+        self.y = randint(BALL_RADIUS//2, (SCREEN_HEIGHT - BALL_RADIUS/2 ) )
 
 
+'''
+   Velocity class: define a dx, dy velocity or change of position in the screen.
+'''
 class Velocity():
     def __init__(self):
-        self.dx = 0
-        self.dy = 0
+        ''' Multiplier for negative Velocity, to move to the left '''
+        multiplier = 1
+        if randint(1,2) == 2:
+            multiplier = -1 
+        ''' Generate random number from 1 to MOVE_AMOUNT to avoid 0 and use multiplier to change to negative or positive. '''    
+        random_number1 = uniform(2,MOVE_AMOUNT) * multiplier
+        
+        if randint(1,2) == 2:
+            multiplier = -1 
+        random_number2 = uniform(2,MOVE_AMOUNT) * multiplier
+
+        self.dx = random_number1
+        self.dy = random_number2
+
+        
 
 
+'''
+   Ball class: define a ball, class variable a Point and Velocity
+'''
 class Ball():
+    ''' Ball constructor '''
     def __init__(self):
         self.center = Point()
         self.velocity = Velocity()
 
+    
+    ''' Draw a ball method '''
     def draw(self):
-        arcade.draw_circle_filled(50, 100, BALL_RADIUS, arcade.color.GREEN)
+        arcade.draw_circle_filled(self.center.x, self.center.y, BALL_RADIUS, arcade.color.GREEN)
 
+    ''' Change the position adding the velocity '''
     def advance(self):
         self.center.x += self.velocity.dx
         self.center.y += self.velocity.dy
-
+        
+    ''' Change the horizontal velocity the other way around '''
     def bounce_horizontal(self):
-        return True
+        self.velocity.dx *= -1 # Change horizontal speed to oposite sign
 
+    ''' Change the vertical velocity the other way around '''
     def bounce_vertical(self):
-        return True
+        self.velocity.dy *= -1 # Change vertical speed to oposite sign
 
+    ''' When restart call the constructor again to set the ball to initial state. '''
     def restart(self):
-        return True
+        self.center.__init__() 
+        self.velocity.__init__() # restart  (x, y) ball coordinates.
 
-
+''' 
+ Paddle class: object with center position in the screen right edge
+'''
 class Paddle():
+    ''' Paddle constructor '''
     def __init__(self):
         self.center = Point()
+        self.center.x = (SCREEN_WIDTH/20) * 19 # Set Paddle on the right edge of the screen
+        self.center.y = SCREEN_HEIGHT // 2
 
+    ''' Draw paddle method '''
     def draw(self):
         arcade.draw_rectangle_filled(
-            375, 150, PADDLE_WIDTH, PADDLE_HEIGHT, arcade.color.BLACK)
+            self.center.x , self.center.y , PADDLE_WIDTH, PADDLE_HEIGHT, arcade.color.BLACK)
 
+    ''' Move up paddle '''
     def move_up(self):
-        self.center.x += 1
+        if self.center.y + PADDLE_HEIGHT// 2 < SCREEN_HEIGHT:
+            self.center.y += MOVE_AMOUNT # Move paddle up
 
+    ''' Move down paddle '''
     def move_down(self):
-        self.center.x -= 1
+        if self.center.y - PADDLE_HEIGHT//2 > 0:
+            self.center.y -= MOVE_AMOUNT # MOve padle down 
+        
 
 
 class Pong(arcade.Window):
@@ -180,13 +221,13 @@ class Pong(arcade.Window):
         Checks to see if the ball has hit the borders
         of the screen and if so, calls its bounce methods.
         """
-        if self.ball.center.x < 0 and self.ball.velocity.dx < 0:
+        if self.ball.center.x - BALL_RADIUS < 0 and self.ball.velocity.dx < 0:
             self.ball.bounce_horizontal()
 
-        if self.ball.center.y < 0 and self.ball.velocity.dy < 0:
+        if self.ball.center.y - BALL_RADIUS < 0 and self.ball.velocity.dy < 0:
             self.ball.bounce_vertical()
 
-        if self.ball.center.y > SCREEN_HEIGHT and self.ball.velocity.dy > 0:
+        if self.ball.center.y + BALL_RADIUS > SCREEN_HEIGHT and self.ball.velocity.dy > 0:
             self.ball.bounce_vertical()
 
     def check_keys(self):
