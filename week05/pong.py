@@ -25,91 +25,117 @@ SCORE_MISS = 5
 '''
    Point class: define a (x, y) point in the screen
 '''
+
+
 class Point():
     def __init__(self):
-        self.x = randint(BALL_RADIUS//2, (SCREEN_WIDTH / 2) ) # Set ball position at the left screen edge
-        self.y = randint(BALL_RADIUS//2, (SCREEN_HEIGHT - BALL_RADIUS/2 ) )
+        self.x = 0
+        self.y = 0   # Default point coordinates(0, 0)
 
 
 '''
    Velocity class: define a dx, dy velocity or change of position in the screen.
 '''
+
+
 class Velocity():
     def __init__(self):
-        ''' Multiplier for negative Velocity, to move to the left '''
-        multiplier = 1
-        if randint(1,2) == 2:
-            multiplier = -1 
-        ''' Generate random number from 1 to MOVE_AMOUNT to avoid 0 and use multiplier to change to negative or positive. '''    
-        random_number1 = uniform(2,MOVE_AMOUNT) * multiplier
-        
-        if randint(1,2) == 2:
-            multiplier = -1 
-        random_number2 = uniform(2,MOVE_AMOUNT) * multiplier
-
-        self.dx = random_number1
-        self.dy = random_number2
-
-        
+        self.dx = 0
+        self.dy = 0  # Default Velocity dx, dy (0, 0)
 
 
 '''
    Ball class: define a ball, class variable a Point and Velocity
 '''
+
+
 class Ball():
     ''' Ball constructor '''
+
     def __init__(self):
         self.center = Point()
         self.velocity = Velocity()
 
-    
+        ''' Set the ball random center coordinates Position'''
+        self.center.x = randint(
+            BALL_RADIUS//2, (SCREEN_WIDTH / 2))  # Set ball position at the left screen edge
+        self.center.y = randint(
+            BALL_RADIUS//2, (SCREEN_HEIGHT - BALL_RADIUS/2))
+
+        ''' Set Ball Velocity '''
+        multiplier = 1
+        if randint(1, 2) == 2:
+            multiplier = -1  # Multiplier for negative Velocity, to move to the left
+
+        random_number_x = uniform(2, MOVE_AMOUNT) * multiplier
+        # Generate random number from 1 to MOVE_AMOUNT to avoid 0 and use multiplier to change to negative or positive.
+
+        if randint(1, 2) == 2:
+            multiplier = -1  # Multiplier for negative Velocity, to move to the left
+        random_number_y = uniform(2, MOVE_AMOUNT) * multiplier
+
+        ''' Set random dx, dy Velocity for Ball '''
+        self.velocity.dx = random_number_x
+        self.velocity.dy = random_number_y
+
     ''' Draw a ball method '''
+
     def draw(self):
-        arcade.draw_circle_filled(self.center.x, self.center.y, BALL_RADIUS, arcade.color.GREEN)
+        arcade.draw_circle_filled(
+            self.center.x, self.center.y, BALL_RADIUS, arcade.color.GREEN)
 
     ''' Change the position adding the velocity '''
+
     def advance(self):
         self.center.x += self.velocity.dx
         self.center.y += self.velocity.dy
-        
+
     ''' Change the horizontal velocity the other way around '''
+
     def bounce_horizontal(self):
-        self.velocity.dx *= -1 # Change horizontal speed to oposite sign
+        self.velocity.dx *= -1  # Change horizontal speed to oposite sign
 
     ''' Change the vertical velocity the other way around '''
+
     def bounce_vertical(self):
-        self.velocity.dy *= -1 # Change vertical speed to oposite sign
+        self.velocity.dy *= -1  # Change vertical speed to oposite sign
 
     ''' When restart call the constructor again to set the ball to initial state. '''
+
     def restart(self):
-        self.center.__init__() 
-        self.velocity.__init__() # restart  (x, y) ball coordinates.
+        self.__init__() # Call the constructor to reset ball center coordinates and Velocity
 
 ''' 
  Paddle class: object with center position in the screen right edge
 '''
+
+
 class Paddle():
     ''' Paddle constructor '''
+
     def __init__(self):
         self.center = Point()
+        
         self.center.x = (SCREEN_WIDTH/20) * 19 # Set Paddle on the right edge of the screen
-        self.center.y = SCREEN_HEIGHT // 2
+        self.center.y = SCREEN_HEIGHT // 2 # Locate paddle at half od the screen
 
     ''' Draw paddle method '''
+
     def draw(self):
         arcade.draw_rectangle_filled(
-            self.center.x , self.center.y , PADDLE_WIDTH, PADDLE_HEIGHT, arcade.color.BLACK)
+            self.center.x, self.center.y, PADDLE_WIDTH, PADDLE_HEIGHT, arcade.color.BLACK)
 
     ''' Move up paddle '''
+
     def move_up(self):
-        if self.center.y + PADDLE_HEIGHT// 2 < SCREEN_HEIGHT:
-            self.center.y += MOVE_AMOUNT # Move paddle up
+        if self.center.y + PADDLE_HEIGHT // 2 < SCREEN_HEIGHT:
+            self.center.y += MOVE_AMOUNT  # Move paddle up
 
     ''' Move down paddle '''
+
     def move_down(self):
         if self.center.y - PADDLE_HEIGHT//2 > 0:
-            self.center.y -= MOVE_AMOUNT # MOve padle down 
-        
+            self.center.y -= MOVE_AMOUNT  # MOve paddle down
 
 
 class Pong(arcade.Window):
