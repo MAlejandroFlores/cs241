@@ -1,12 +1,17 @@
 """
 File: asteroids.py
 Original Author: Br. Burton
-Designed to be completed by others
+Designed to be completed by Alejandro Flores Medina
 This program implements the asteroids game.
 """
 import arcade
+import random
+import math
 from abc import ABC
 from abc import abstractmethod
+
+from arcade import texture
+
 
 # These are Global constants to use throughout the game
 SCREEN_WIDTH = 800
@@ -35,8 +40,8 @@ SMALL_ROCK_RADIUS = 2
 
 class Point(ABC):
     def __init__(self):
-        self.center_x = 0.0
-        self.center_y = 0.0
+        self.x = 0.0
+        self.y = 0.0
 
     def set_center(self, x, y):
         pass
@@ -46,10 +51,116 @@ class Point(ABC):
 
 class Velocity(ABC):
     def __init__(self):
+        self.dx = 0.0
+        self.dy = 0.0
+
+    def set_velocity(self, dx, dy):
+        self.dx = dx
+        self.dy = dy
+
+    def get_velocity(self):
+        velocity = [self.dx, self.dy]
+        return velocity
+
+class FlyingObject(ABC):
+    def __init__(self):
+        self.center = Point()
+        self.velocity = Velocity()
+        self.radius = 0.0
+        self.angle = 0
+        self.alive = True
+        # self.img = "images/playerShip1_orange.png"
+        # self.texture = arcade.load_texture(self.img)
+        # self.width = self.texture.width
+        # self.height = self.texture.height
+
+    def advance(self):
+        self.center.x += self.velocity.dx
+        self.center.y += self.velocity.dy
+
+    def draw(self):
+        arcade.draw_texture_rectangle(self.center.x, self.center.y, self.width, self.height, self.texture, self.angle, 255)
+
+    def hit(self):
+        self.alive =  False
+
+    def is_off_screen(self, screen_width, screen_height):
+        if ((self.center.x < screen_width) and (self.center.y < screen_height) and
+            (self.center.x > 0) and (self.center.y > 0)):
+            return False
+        else:
+            return True
+    
+class Asteroids(FlyingObject):
+    def __init__(self):
+        super().__init__()
+
+    def hit():
+        super().hit()
+
+class SmallAsteroid(Asteroids):
+    def __init__(self):
+        super().__init__()
+
+    def draw(self):
+        pass
+
+    def hit():
+        super().hit()
+
+class MediumAsteroid(Asteroids):
+    def __init__(self):
+        super().__init__()
+
+    def draw(self):
+        super().draw()
+        pass
+
+    def hit(self):
+        super().hit()
+
+class LargeAsteroid(Asteroids):
+    def __init__(self):
+        super().__init__()
+        self.center.x = random.randint(1, 50)
+        self.center.y = random.randint(1, 150)
+        self.angle = random.randint(1, 50)
+        self.img = "images/meteorGrey_big1.png"
+        self.texture = arcade.load_texture(self.img)
+        self.width = self.texture.width
+        self.height = self.texture.height
+        self.radius = BIG_ROCK_RADIUS
+        self.speed = BIG_ROCK_SPEED
         
+        self.velocity.dx = math.cos(math.radians(self.angle)) * self.speed
+        self.velocity.dy = math.sin(math.radians(self.angle)) * self.speed
 
+    def draw(self):
+        super().draw()
 
+        arcade.draw_texture_rectangle(self.center.x, self.center.y, self.width, self.height, self.texture, self.angle, 255)
 
+    def hit(self):
+        super().hit()
+
+class SpaceShip(FlyingObject):
+    def __init__(self):
+        super().__init__()
+        self.center.x = SCREEN_WIDTH/2
+        self.center.y = SCREEN_HEIGHT/2
+        self.radius = SHIP_RADIUS
+        self.img = "images/playerShip1_orange.png"
+        self.texture = arcade.load_texture(self.img)
+        self.width = self.texture.width
+        self.height = self.texture.height
+     
+    
+    def draw(self):
+        super().draw()
+        pass
+
+    def hit(self):
+        super().hit()
 
 
 class Game(arcade.Window):
@@ -72,6 +183,18 @@ class Game(arcade.Window):
         self.held_keys = set()
 
         # TODO: declare anything here you need the game class to track
+        self.asteroids = []
+        self.bullets = []
+
+        self.score = 0
+
+        
+        for index in range(INITIAL_ROCK_COUNT):
+            asteroid = LargeAsteroid()
+            self.asteroids.append(asteroid)
+
+        self.spaceship = SpaceShip()
+
 
     def on_draw(self):
         """
@@ -82,7 +205,17 @@ class Game(arcade.Window):
         # clear the screen to begin drawing
         arcade.start_render()
 
+        self.spaceship.draw()
+
         # TODO: draw each object
+        for bullet in self.bullets:
+            bullet.draw()
+
+        for asteroid in self.asteroids:
+            asteroid.draw()
+
+        self.spaceship.draw()
+        
 
     def update(self, delta_time):
         """
@@ -92,6 +225,13 @@ class Game(arcade.Window):
         self.check_keys()
 
         # TODO: Tell everything to advance or move forward one step in time
+        for bullet in self.bullets:
+            bullet.advance()
+
+        for asteroid in self.asteroids:
+            asteroid.advance()
+
+        self.spaceship.advance()
 
         # TODO: Check for collisions
 
