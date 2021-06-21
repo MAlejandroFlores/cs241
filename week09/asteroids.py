@@ -49,7 +49,6 @@ class Point(ABC):
     def get_center():
         pass
 
-
 class Velocity(ABC):
     def __init__(self):
         self.dx = 0.0
@@ -63,14 +62,12 @@ class Velocity(ABC):
         velocity = [self.dx, self.dy]
         return velocity
 
-
 class FlyingObject(ABC):
     def __init__(self):
         self.center = Point()
         self.velocity = Velocity()
         self.radius = 0.0
         self.angle = 0
-        self.speed = 0
         self.alive = True
         # self.img = "images/playerShip1_orange.png"
         # self.texture = arcade.load_texture(self.img)
@@ -82,48 +79,24 @@ class FlyingObject(ABC):
         self.center.y += self.velocity.dy
 
     def draw(self):
-        arcade.draw_texture_rectangle(
-            self.center.x, self.center.y, self.width, self.height, self.texture, self.angle, 255)
+        arcade.draw_texture_rectangle(self.center.x, self.center.y, self.width, self.height, self.texture, self.angle, 255)
 
     def hit(self):
-        self.alive = False
+        self.alive =  False
 
     def is_off_screen(self, screen_width, screen_height):
         if ((self.center.x < screen_width) and (self.center.y < screen_height) and
-                (self.center.x > 0) and (self.center.y > 0)):
+            (self.center.x > 0) and (self.center.y > 0)):
             return False
         else:
             return True
-
-class Bullet(FlyingObject):
-    def __init__(self, angle, point):
-        super().__init__()
-        self.radius = BULLET_RADIUS
-        self.speed = BULLET_SPEED
-        self.life = BULLET_LIFE
-        self.angle = angle
-        self.center = point
-        self.img = "images/laserBlue01.png"
-        self.texture = arcade.load_texture(self.img)
-        self.width = self.texture.width
-        self.height = self.texture.height
-
-        self.velocity.dx = math.cos(math.radians(self.angle)) * self.speed
-        self.velocity.dy = math.sin(math.radians(self.angle)) * self.speed
-
-    def fire(point):
-        pass
-
-    def draw(self):
-        super().draw()
-
+    
 class Asteroids(FlyingObject):
     def __init__(self):
         super().__init__()
 
     def hit():
         super().hit()
-
 
 class SmallAsteroid(Asteroids):
     def __init__(self):
@@ -135,7 +108,6 @@ class SmallAsteroid(Asteroids):
     def hit():
         super().hit()
 
-
 class MediumAsteroid(Asteroids):
     def __init__(self):
         super().__init__()
@@ -146,7 +118,6 @@ class MediumAsteroid(Asteroids):
 
     def hit(self):
         super().hit()
-
 
 class LargeAsteroid(Asteroids):
     def __init__(self):
@@ -160,43 +131,36 @@ class LargeAsteroid(Asteroids):
         self.height = self.texture.height
         self.radius = BIG_ROCK_RADIUS
         self.speed = BIG_ROCK_SPEED
-
+        
         self.velocity.dx = math.cos(math.radians(self.angle)) * self.speed
         self.velocity.dy = math.sin(math.radians(self.angle)) * self.speed
 
     def draw(self):
         super().draw()
 
-        arcade.draw_texture_rectangle(
-            self.center.x, self.center.y, self.width, self.height, self.texture, self.angle, 255)
+        arcade.draw_texture_rectangle(self.center.x, self.center.y, self.width, self.height, self.texture, self.angle, 255)
 
     def hit(self):
         super().hit()
-
 
 class SpaceShip(FlyingObject):
     def __init__(self):
         super().__init__()
         self.center.x = SCREEN_WIDTH/2
         self.center.y = SCREEN_HEIGHT/2
-        self.angle = 0
         self.radius = SHIP_RADIUS
         self.img = "images/playerShip1_orange.png"
         self.texture = arcade.load_texture(self.img)
         self.width = self.texture.width
         self.height = self.texture.height
-
+     
+    
     def draw(self):
         super().draw()
         pass
 
     def hit(self):
         super().hit()
-
-    def advance(self):
-        super().advance()
-        self.velocity.dx = math.cos(math.radians(self.angle + 90)) * self.speed
-        self.velocity.dy = math.sin(math.radians(self.angle + 90)) * self.speed
 
 
 class Game(arcade.Window):
@@ -224,12 +188,13 @@ class Game(arcade.Window):
 
         self.score = 0
 
+        
         for index in range(INITIAL_ROCK_COUNT):
             asteroid = LargeAsteroid()
             self.asteroids.append(asteroid)
-            
 
         self.spaceship = SpaceShip()
+
 
     def on_draw(self):
         """
@@ -250,6 +215,7 @@ class Game(arcade.Window):
             asteroid.draw()
 
         self.spaceship.draw()
+        
 
     def update(self, delta_time):
         """
@@ -275,35 +241,33 @@ class Game(arcade.Window):
         You will need to put your own method calls in here.
         """
         if arcade.key.LEFT in self.held_keys:
-            self.spaceship.angle += SHIP_TURN_AMOUNT
+            pass
 
         if arcade.key.RIGHT in self.held_keys:
-            self.spaceship.angle -= SHIP_TURN_AMOUNT
+            pass
 
         if arcade.key.UP in self.held_keys:
-            self.spaceship.speed += SHIP_THRUST_AMOUNT
-            # print("Velocity dx: {}".format(self.spaceship.velocity.dx))
+            pass
 
         if arcade.key.DOWN in self.held_keys:
-            self.spaceship.speed -= SHIP_THRUST_AMOUNT
-            # print(self.spaceship.speed)
+            pass
 
         # Machine gun mode...
-        # if arcade.key.SPACE in self.held_keys:
+        #if arcade.key.SPACE in self.held_keys:
         #    pass
+
 
     def on_key_press(self, key: int, modifiers: int):
         """
         Puts the current key in the set of keys that are being held.
         You will need to add things here to handle firing the bullet.
         """
-        if self.spaceship.alive:
+        if self.ship.alive:
             self.held_keys.add(key)
 
             if key == arcade.key.SPACE:
                 # TODO: Fire the bullet here!
-                newBullet = Bullet(self.spaceship.angle, self.spaceship.center)
-                self.bullets.append(newBullet)
+                pass
 
     def on_key_release(self, key: int, modifiers: int):
         """
