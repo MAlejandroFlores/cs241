@@ -126,7 +126,7 @@ class Bullet(FlyingObject):
 
     def advance(self):
         super().advance()
-        print("Bullet life: {}".format(self.life))
+        # print("Bullet life: {}".format(self.life))
         if self.life > 1:
             self.life -= 1
         elif self.life == 1:
