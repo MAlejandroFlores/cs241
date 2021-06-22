@@ -78,7 +78,21 @@ class FlyingObject(ABC):
         # self.height = self.texture.height
 
     def advance(self):
-        self.center.x += self.velocity.dx
+
+        if self.center.x < 0:
+            self.center.x += SCREEN_WIDTH
+        elif self.center.x > SCREEN_WIDTH:
+            self.center.x -= SCREEN_WIDTH
+        else:
+            self.center.x += self.velocity.dx
+
+        if self.center.y < 0:
+            self.center.y += SCREEN_HEIGHT
+        elif self.center.y > SCREEN_HEIGHT:
+            self.center.y -= SCREEN_HEIGHT
+        else:
+            self.center.y += self.velocity.dy
+
         self.center.y += self.velocity.dy
 
     def draw(self):
@@ -88,34 +102,37 @@ class FlyingObject(ABC):
     def hit(self):
         self.alive = False
 
-    def is_off_screen(self, screen_width, screen_height):
-        if ((self.center.x < screen_width) and (self.center.y < screen_height) and
-                (self.center.x > 0) and (self.center.y > 0)):
-            return False
-        else:
-            return True
 
 class Bullet(FlyingObject):
-    def __init__(self, angle, point):
+    def __init__(self, angle, x, y):
         super().__init__()
         self.radius = BULLET_RADIUS
         self.speed = BULLET_SPEED
         self.life = BULLET_LIFE
-        self.angle = angle
-        self.center = point
+        self.angle = angle + 90
+        self.center.x = x
+        self.center.y = y
         self.img = "images/laserBlue01.png"
         self.texture = arcade.load_texture(self.img)
         self.width = self.texture.width
         self.height = self.texture.height
 
-        self.velocity.dx = math.cos(math.radians(self.angle)) * self.speed
-        self.velocity.dy = math.sin(math.radians(self.angle)) * self.speed
-
-    def fire(point):
-        pass
+    def fire(self):
+        self.velocity.dx += math.cos(math.radians(self.angle)) * self.speed
+        self.velocity.dy += math.sin(math.radians(self.angle)) * self.speed
 
     def draw(self):
         super().draw()
+
+    def advance(self):
+        super().advance()
+        print("Bullet life: {}".format(self.life))
+        if self.life > 1:
+            self.life -= 1
+        elif self.life == 1:
+            self.life -= 1
+            self.alive = False
+
 
 class Asteroids(FlyingObject):
     def __init__(self):
@@ -195,8 +212,21 @@ class SpaceShip(FlyingObject):
 
     def advance(self):
         super().advance()
+        # print("Spaceship center X: {}" .format(self.center.x))
         self.velocity.dx = math.cos(math.radians(self.angle + 90)) * self.speed
         self.velocity.dy = math.sin(math.radians(self.angle + 90)) * self.speed
+
+    def turnRight(self):
+        self.angle -= SHIP_TURN_AMOUNT
+
+    def turnLeft(self):
+        self.angle += SHIP_TURN_AMOUNT
+
+    def speedUp(self):
+        self.speed += SHIP_THRUST_AMOUNT
+
+    def speedDown(self):
+        self.speed -= SHIP_THRUST_AMOUNT
 
 
 class Game(arcade.Window):
@@ -227,7 +257,6 @@ class Game(arcade.Window):
         for index in range(INITIAL_ROCK_COUNT):
             asteroid = LargeAsteroid()
             self.asteroids.append(asteroid)
-            
 
         self.spaceship = SpaceShip()
 
@@ -244,7 +273,10 @@ class Game(arcade.Window):
 
         # TODO: draw each object
         for bullet in self.bullets:
-            bullet.draw()
+            if bullet.alive:
+                bullet.draw()
+            else:
+                self.bullets.pop()
 
         for asteroid in self.asteroids:
             asteroid.draw()
@@ -275,18 +307,14 @@ class Game(arcade.Window):
         You will need to put your own method calls in here.
         """
         if arcade.key.LEFT in self.held_keys:
-            self.spaceship.angle += SHIP_TURN_AMOUNT
+            self.spaceship.turnLeft()
 
         if arcade.key.RIGHT in self.held_keys:
-            self.spaceship.angle -= SHIP_TURN_AMOUNT
-
+            self.spaceship.turnRight()
         if arcade.key.UP in self.held_keys:
-            self.spaceship.speed += SHIP_THRUST_AMOUNT
-            # print("Velocity dx: {}".format(self.spaceship.velocity.dx))
-
+            self.spaceship.speedUp()
         if arcade.key.DOWN in self.held_keys:
-            self.spaceship.speed -= SHIP_THRUST_AMOUNT
-            # print(self.spaceship.speed)
+            self.spaceship.speedDown()
 
         # Machine gun mode...
         # if arcade.key.SPACE in self.held_keys:
@@ -302,7 +330,9 @@ class Game(arcade.Window):
 
             if key == arcade.key.SPACE:
                 # TODO: Fire the bullet here!
-                newBullet = Bullet(self.spaceship.angle, self.spaceship.center)
+                newBullet = Bullet(
+                    self.spaceship.angle, self.spaceship.center.x, self.spaceship.center.y)
+                newBullet.fire()
                 self.bullets.append(newBullet)
 
     def on_key_release(self, key: int, modifiers: int):
