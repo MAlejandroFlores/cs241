@@ -147,7 +147,7 @@ class SmallAsteroid(Asteroids):
         super().__init__()
 
     def draw(self):
-        pass
+        super().draw()
 
     def hit():
         super().hit()
@@ -159,7 +159,6 @@ class MediumAsteroid(Asteroids):
 
     def draw(self):
         super().draw()
-        pass
 
     def hit(self):
         super().hit()
@@ -184,9 +183,6 @@ class LargeAsteroid(Asteroids):
     def draw(self):
         super().draw()
 
-        arcade.draw_texture_rectangle(
-            self.center.x, self.center.y, self.width, self.height, self.texture, self.angle, 255)
-
     def hit(self):
         super().hit()
 
@@ -205,7 +201,6 @@ class SpaceShip(FlyingObject):
 
     def draw(self):
         super().draw()
-        pass
 
     def hit(self):
         super().hit()
