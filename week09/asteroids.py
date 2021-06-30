@@ -117,9 +117,11 @@ class Bullet(FlyingObject):
         self.width = self.texture.width
         self.height = self.texture.height
 
-    def fire(self):
+    def fire(self, spaceShipVelDx, spaceShipVelDy):
         self.velocity.dx += math.cos(math.radians(self.angle)) * self.speed
         self.velocity.dy += math.sin(math.radians(self.angle)) * self.speed
+        self.velocity.dx += spaceShipVelDx
+        self.velocity.dy += spaceShipVelDy
 
     def draw(self):
         super().draw()
@@ -327,7 +329,7 @@ class Game(arcade.Window):
                 # TODO: Fire the bullet here!
                 newBullet = Bullet(
                     self.spaceship.angle, self.spaceship.center.x, self.spaceship.center.y)
-                newBullet.fire()
+                newBullet.fire(self.spaceship.velocity.dx, self.spaceship.velocity.dy)
                 self.bullets.append(newBullet)
 
     def on_key_release(self, key: int, modifiers: int):

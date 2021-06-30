@@ -99,7 +99,7 @@ class FlyingObject(ABC):
     def draw(self):
         if self.alive:
             arcade.draw_texture_rectangle(
-            self.center.x, self.center.y, self.width, self.height, self.texture, self.angle, 255)
+                self.center.x, self.center.y, self.width, self.height, self.texture, self.angle, 255)
 
     def hit(self):
         self.alive = False
@@ -119,9 +119,11 @@ class Bullet(FlyingObject):
         self.width = self.texture.width
         self.height = self.texture.height
 
-    def fire(self):
+    def fire(self, spaceShipVelDx, spaceShipVelDy):
         self.velocity.dx += math.cos(math.radians(self.angle)) * self.speed
         self.velocity.dy += math.sin(math.radians(self.angle)) * self.speed
+        self.velocity.dx += spaceShipVelDx
+        self.velocity.dy += spaceShipVelDy
 
     def draw(self):
         super().draw()
@@ -164,7 +166,6 @@ class SmallAsteroid(Asteroids):
         super().hit()
 
 
-
 class MediumAsteroid(Asteroids):
     def __init__(self):
         super().__init__()
@@ -173,7 +174,6 @@ class MediumAsteroid(Asteroids):
         self.texture = arcade.load_texture(self.img)
         self.width = self.texture.width
         self.height = self.texture.height
-        
 
     def draw(self):
         super().draw()
@@ -194,12 +194,11 @@ class MediumAsteroid(Asteroids):
 
         newSmall2.center.x = self.center.x
         newSmall2.center.y = self.center.y
-        newSmall2.velocity.dx = self.velocity.dx -1.5
-        newSmall2.velocity.dy = self.velocity.dy -1.5
+        newSmall2.velocity.dx = self.velocity.dx - 1.5
+        newSmall2.velocity.dy = self.velocity.dy - 1.5
 
         asteroids.append(newSmall1)
         asteroids.append(newSmall2)
-        
 
 
 class LargeAsteroid(Asteroids):
@@ -214,7 +213,6 @@ class LargeAsteroid(Asteroids):
         self.texture = arcade.load_texture(self.img)
         self.width = self.texture.width
         self.height = self.texture.height
-        
 
         self.velocity.dx = math.cos(math.radians(self.angle)) * self.speed
         self.velocity.dy = math.sin(math.radians(self.angle)) * self.speed
@@ -234,21 +232,22 @@ class LargeAsteroid(Asteroids):
 
         newMedium1.center.x = self.center.x
         newMedium1.center.y = self.center.y
-        newMedium1.velocity.dx = self.velocity.dx 
+        newMedium1.velocity.dx = self.velocity.dx
         newMedium1.velocity.dy = self.velocity.dy + 2
 
         newMedium2.center.x = self.center.x
         newMedium2.center.y = self.center.y
-        newMedium2.velocity.dx = self.velocity.dx 
+        newMedium2.velocity.dx = self.velocity.dx
         newMedium2.velocity.dy = self.velocity.dy - 2
 
         newSmall.center.x = self.center.x
         newSmall.center.y = self.center.y
         newSmall.velocity.dx = self.velocity.dx + 5
-        newSmall.velocity.dy = self.velocity.dy 
+        newSmall.velocity.dy = self.velocity.dy
         asteroids.append(newMedium1)
         asteroids.append(newMedium2)
         asteroids.append(newSmall)
+
 
 class SpaceShip(FlyingObject):
     def __init__(self):
@@ -271,8 +270,8 @@ class SpaceShip(FlyingObject):
     def advance(self):
         super().advance()
         # print("Spaceship center X: {}" .format(self.center.x))
-        self.velocity.dx = math.cos(math.radians(self.angle + 90)) * self.speed
-        self.velocity.dy = math.sin(math.radians(self.angle + 90)) * self.speed
+        # self.velocity.dx = math.cos(math.radians(self.angle + 90)) * self.speed
+        # self.velocity.dy = math.sin(math.radians(self.angle + 90)) * self.speed
 
     def turnRight(self):
         self.angle -= SHIP_TURN_AMOUNT
@@ -281,10 +280,18 @@ class SpaceShip(FlyingObject):
         self.angle += SHIP_TURN_AMOUNT
 
     def speedUp(self):
-        self.speed += SHIP_THRUST_AMOUNT
+        # self.speed += SHIP_THRUST_AMOUNT
+        self.velocity.dx -= math.sin(math.radians(self.angle)
+                                     ) * SHIP_THRUST_AMOUNT
+        self.velocity.dy += math.cos(math.radians(self.angle)
+                                     ) * SHIP_THRUST_AMOUNT
 
     def speedDown(self):
-        self.speed -= SHIP_THRUST_AMOUNT
+        # self.speed -= SHIP_THRUST_AMOUNT
+        self.velocity.dx += math.sin(math.radians(self.angle)
+                                     ) * SHIP_THRUST_AMOUNT
+        self.velocity.dy -= math.cos(math.radians(self.angle)
+                                     ) * SHIP_THRUST_AMOUNT
 
 
 class Game(arcade.Window):
@@ -368,7 +375,7 @@ class Game(arcade.Window):
                 if bullet.alive and asteroid.alive:
                     too_close = bullet.radius + asteroid.radius
                     if ((abs(bullet.center.x - asteroid.center.x) < too_close) and
-                        (abs(bullet.center.y - asteroid.center.y) < too_close)):
+                            (abs(bullet.center.y - asteroid.center.y) < too_close)):
                         '''It is a Hit!'''
                         print("IT IS A COLLISION!!")
                         print("Asteroid x: {}".format(asteroid.center.x))
@@ -383,12 +390,11 @@ class Game(arcade.Window):
             if (self.spaceship.alive and asteroid.alive):
                 too_close = self.spaceship.radius + asteroid.radius
                 if ((abs(self.spaceship.center.x - asteroid.center.x) < too_close) and
-                    (abs(self.spaceship.center.y - asteroid.center.y) < too_close)):
+                        (abs(self.spaceship.center.y - asteroid.center.y) < too_close)):
                     '''It is a Hit!'''
                     print("IT IS A SPACESHIP  COLLISION!!")
                     self.spaceship.hit()
                     asteroid.hit(self.asteroids)
-
 
     def killZombies(self):
         for bullet in self.bullets:
@@ -401,7 +407,6 @@ class Game(arcade.Window):
 
         if not self.spaceship.alive:
             pass
-
 
     def check_keys(self):
         """
@@ -434,7 +439,8 @@ class Game(arcade.Window):
                 # TODO: Fire the bullet here!
                 newBullet = Bullet(
                     self.spaceship.angle, self.spaceship.center.x, self.spaceship.center.y)
-                newBullet.fire()
+                newBullet.fire(self.spaceship.velocity.dx,
+                               self.spaceship.velocity.dy)
                 self.bullets.append(newBullet)
 
     def on_key_release(self, key: int, modifiers: int):
