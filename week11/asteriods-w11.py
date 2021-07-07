@@ -45,11 +45,13 @@ class Point(ABC):
         self.x = 0.0
         self.y = 0.0
 
+    # @abstractmethod
     def set_center(self, x, y):
         '''Setter x,y'''
         pass
 
-    def get_center():
+    # @abstractmethod
+    def get_center(self):
         '''Getter x,y'''
         pass
 
@@ -291,6 +293,7 @@ class SpaceShip(FlyingObject):
 
     def hit(self):
         super().hit()
+        
 
     def advance(self):
         super().advance()
@@ -359,9 +362,6 @@ class Game(arcade.Window):
         # clear the screen to begin drawing
         arcade.start_render()
 
-        self.spaceship.draw()
-
-        # TODO: draw each object
         for bullet in self.bullets:
             if bullet.alive:
                 bullet.draw()
@@ -371,7 +371,12 @@ class Game(arcade.Window):
         for asteroid in self.asteroids:
             asteroid.draw()
 
-        self.spaceship.draw()
+        if self.spaceship.alive:
+            self.spaceship.draw()
+        else:
+            self.draw_game_over()
+
+        
 
     def update(self, delta_time):
         """
@@ -402,7 +407,7 @@ class Game(arcade.Window):
                     if ((abs(bullet.center.x - asteroid.center.x) < too_close) and
                             (abs(bullet.center.y - asteroid.center.y) < too_close)):
                         '''It is a Hit!'''
-                        print("IT IS A COLLISION!!")
+                        # print("IT IS A COLLISION!!")
                         print("Asteroid x: {}".format(asteroid.center.x))
                         print("Asteroid y: {}".format(asteroid.center.y))
                         print("Bullet x: {}".format(bullet.center.x))
@@ -418,10 +423,12 @@ class Game(arcade.Window):
                         (abs(self.spaceship.center.y - asteroid.center.y) < too_close)):
                     '''It is a Hit!'''
                     print("IT IS A SPACESHIP  COLLISION!!")
+                    self.draw_game_over()
                     self.spaceship.hit()
                     asteroid.hit(self.asteroids)
 
     def killZombies(self):
+        '''Kill Zombies class: If there is an object in the screen not alive, remove it'''
         for bullet in self.bullets:
             if not bullet.alive:
                 self.bullets.remove(bullet)
@@ -432,6 +439,23 @@ class Game(arcade.Window):
 
         if not self.spaceship.alive:
             pass
+            
+
+    def draw_game_over(self):
+        """
+        Draw "Game over" across the screen.
+        """
+        # output = "Game Over"
+        # arcade.draw_text(output, SCREEN_WIDTH/2, SCREEN_HEIGHT/2, arcade.color.RED, 54)
+        
+        # output = "Click to restart"
+        # arcade.draw_text(output, 310, 300, arcade.color.WHITE, 24)
+        arcade.draw_text(repr("GAME OVER"), SCREEN_HEIGHT/2 , SCREEN_HEIGHT/2,
+                         arcade.color.CARROT_ORANGE, font_size=20)
+        # arcade.draw_text("NEW GAME OVER", SCREEN_WIDTH/2, SCREEN_HEIGHT/2,
+        #                  12, arcade.color.WHITE)
+        # arcade.draw_text("Game Over", 240, 400, arcade.color.WHITE, 54)
+        # arcade.draw_text("Click to restart", 310, 300, arcade.color.WHITE, 24)
 
     def check_keys(self):
         """
